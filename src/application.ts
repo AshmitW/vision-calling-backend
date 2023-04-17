@@ -1,15 +1,20 @@
+import {AuthenticationComponent} from '@loopback/authentication';
+import {
+  JWTAuthenticationComponent,
+  UserServiceBindings,
+} from '@loopback/authentication-jwt';
 import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig} from '@loopback/core';
+import {RepositoryMixin} from '@loopback/repository';
+import {RestApplication} from '@loopback/rest';
 import {
   RestExplorerBindings,
   RestExplorerComponent,
 } from '@loopback/rest-explorer';
-import {RepositoryMixin} from '@loopback/repository';
-import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
+import {DbmysqlDataSource} from './datasources';
 import {MySequence} from './sequence';
-
 export {ApplicationConfig};
 
 export class VisionCallingBackendApplication extends BootMixin(
@@ -29,6 +34,13 @@ export class VisionCallingBackendApplication extends BootMixin(
       path: '/explorer',
     });
     this.component(RestExplorerComponent);
+
+    // Mount authentication system
+    this.component(AuthenticationComponent);
+    // Mount jwt component
+    this.component(JWTAuthenticationComponent);
+    // Bind datasource
+    this.dataSource(DbmysqlDataSource, UserServiceBindings.DATASOURCE_NAME);
 
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
