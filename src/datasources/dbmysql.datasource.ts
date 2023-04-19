@@ -1,15 +1,28 @@
 import {inject, lifeCycleObserver, LifeCycleObserver} from '@loopback/core';
 import {juggler} from '@loopback/repository';
 
+// Local DB
+// const config = {
+//   name: 'dbmysql',
+//   connector: 'mysql',
+//   url: '',
+//   host: 'localhost',
+//   port: 3306,
+//   user: 'root',
+//   password: '',
+//   database: 'vision_calling',
+// };
+
+// Heroku Clear DB
 const config = {
   name: 'dbmysql',
   connector: 'mysql',
   url: '',
-  host: 'localhost',
+  host: 'eu-cdbr-west-03.cleardb.net',
   port: 3306,
-  user: 'root',
-  password: '',
-  database: 'vision_calling'
+  user: 'bc027ac1b473b7',
+  password: '6b001ad1',
+  database: 'heroku_44b098d87ba5d38',
 };
 
 // Observe application's life cycle to disconnect the datasource when
@@ -17,8 +30,10 @@ const config = {
 // gracefully. The `stop()` method is inherited from `juggler.DataSource`.
 // Learn more at https://loopback.io/doc/en/lb4/Life-cycle.html
 @lifeCycleObserver('datasource')
-export class DbmysqlDataSource extends juggler.DataSource
-  implements LifeCycleObserver {
+export class DbmysqlDataSource
+  extends juggler.DataSource
+  implements LifeCycleObserver
+{
   static dataSourceName = 'dbmysql';
   static readonly defaultConfig = config;
 
