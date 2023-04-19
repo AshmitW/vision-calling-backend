@@ -34,11 +34,13 @@
     "prestart": "npm run rebuild",
     "start": "node -r source-map-support/register .",
     "clean": "lb-clean dist *.tsbuildinfo .eslintcache",
-    "rebuild": "npm run clean && npm run build"
+    "rebuild": "npm run clean && npm run build",
+    "postinstall": "npm run build",
+    "start:prod": "node dist/index.js"
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/AshmitW/vision-calling-backend.git"
   },
   "author": "Ashmit <samith.shetty3@gmail.com>",
   "license": "",
