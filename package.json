@@ -59,6 +59,7 @@
     "@loopback/rest": "^12.0.10",
     "@loopback/rest-explorer": "^5.0.10",
     "@loopback/service-proxy": "^5.0.10",
+    "agora-token": "^2.0.2",
     "loopback-connector-mysql": "^5.4.4",
     "tslib": "^2.0.0"
   },

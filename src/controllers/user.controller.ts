@@ -17,6 +17,7 @@ import {
   SchemaObject,
 } from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
+import {RtcRole, RtcTokenBuilder} from 'agora-token';
 import {genSalt, hash} from 'bcryptjs';
 import _ from 'lodash';
 
@@ -68,6 +69,27 @@ export const UserIdRequestBody = {
   required: true,
   content: {
     'application/json': {schema: UserIdSchema},
+  },
+};
+
+const AgoraTokenSchema: SchemaObject = {
+  type: 'object',
+  required: ['channelName ', 'uid '],
+  properties: {
+    channelName: {
+      type: 'string',
+    },
+    uid: {
+      type: 'string',
+    },
+  },
+};
+
+export const AgoraTokenRequestBody = {
+  description: 'The input of Agora token generate function',
+  required: true,
+  content: {
+    'application/json': {schema: AgoraTokenSchema},
   },
 };
 
@@ -180,5 +202,55 @@ export class UserController {
     @requestBody(UserIdRequestBody) user: {id: string},
   ): Promise<User> {
     return this.userRepository.findById(user.id);
+  }
+
+  @authenticate('jwt')
+  @post('/agora/token', {
+    responses: {
+      '200': {
+        description: 'Agora Token',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                agoraToken: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  async generateAgoraRTCToken(
+    @requestBody(AgoraTokenRequestBody)
+    tokenInfo: {
+      channelName: string;
+      uid: string;
+    },
+  ): Promise<{agoraToken: string}> {
+    const appId = 'd19b8e8972314505b397601f15cae1b5';
+    const appCertificate = 'ba252f35ca2d4ba1a9ffe70dbe2e8c7e';
+    const channelName = tokenInfo.channelName;
+    const uid = tokenInfo.uid;
+    const role = RtcRole.PUBLISHER;
+
+    const expirationTimeInSeconds = 3600;
+
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+
+    const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
+    const agoraToken = RtcTokenBuilder.buildTokenWithUid(
+      appId,
+      appCertificate,
+      channelName,
+      uid,
+      role,
+      expirationTimeInSeconds,
+      privilegeExpiredTs,
+    );
+    return {agoraToken};
   }
 }
