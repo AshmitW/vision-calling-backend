@@ -1,7 +1,7 @@
 import {inject, lifeCycleObserver, LifeCycleObserver} from '@loopback/core';
 import {juggler} from '@loopback/repository';
 
-// Local DB
+// Local DB info
 // const config = {
 //   name: 'dbmysql',
 //   connector: 'mysql',
@@ -13,7 +13,7 @@ import {juggler} from '@loopback/repository';
 //   database: 'vision_calling',
 // };
 
-// Heroku Clear DB
+// Heroku Clear DB info
 const config = {
   name: 'dbmysql',
   connector: 'mysql',

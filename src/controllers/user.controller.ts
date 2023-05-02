@@ -104,6 +104,7 @@ export class UserController {
     @repository(UserRepository) protected userRepository: UserRepository,
   ) {}
 
+  // Endpoint type and Adding OPENAPI INFO
   @post('/users/login', {
     responses: {
       '200': {
@@ -123,6 +124,7 @@ export class UserController {
       },
     },
   })
+  // Endpoint for loggin in the user and returning a JWT
   async login(
     @requestBody(CredentialsRequestBody) credentials: Credentials,
   ): Promise<{token: string}> {
@@ -131,12 +133,14 @@ export class UserController {
     // convert a User object into a UserProfile object (reduced set of properties)
     const userProfile = this.userService.convertToUserProfile(user);
 
-    // create a JSON Web Token based on the user profile
+    // create a JWT based on the user profile
     const token = await this.jwtService.generateToken(userProfile);
     return {token};
   }
 
+  // Calling JWT Authenticator for this endpoint to check for JWT on header
   @authenticate('jwt')
+  // Endpoint type and Adding OPENAPI INFO
   @get('/whoAmI', {
     responses: {
       '200': {
@@ -145,14 +149,15 @@ export class UserController {
       },
     },
   })
+  // Endpoint for finding who the user is based on the JWT in header
   async whoAmI(
     @inject(SecurityBindings.USER)
     currentUserProfile: UserProfile,
   ): Promise<User> {
-    // return currentUserProfile[securityId];
     return this.userRepository.findById(currentUserProfile[securityId]);
   }
 
+  // Endpoint type and  Adding OPENAPI INFO
   @post('/signup', {
     responses: {
       '200': {
@@ -167,6 +172,7 @@ export class UserController {
       },
     },
   })
+  // Endpoint for signing up the user
   async signUp(
     @requestBody({
       content: {
@@ -189,7 +195,9 @@ export class UserController {
     return savedUser;
   }
 
+  // Calling JWT Authenticator for this endpoint to check for JWT on header
   @authenticate('jwt')
+  // Endpoint type and Adding OPENAPI INFO
   @post('/users', {
     responses: {
       '200': {
@@ -198,13 +206,16 @@ export class UserController {
       },
     },
   })
+  // Endpoint for finding a user by ID
   async findById(
     @requestBody(UserIdRequestBody) user: {id: string},
   ): Promise<User> {
     return this.userRepository.findById(user.id);
   }
 
+  // Calling JWT Authenticator for this endpoint to check for JWT on header
   @authenticate('jwt')
+  // Endpoint type and Adding OPENAPI INFO
   @post('/agora/token', {
     responses: {
       '200': {
@@ -224,6 +235,7 @@ export class UserController {
       },
     },
   })
+  // Endpoint for Generating an agora Token
   async generateAgoraRTCToken(
     @requestBody(AgoraTokenRequestBody)
     tokenInfo: {
