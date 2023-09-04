@@ -17,7 +17,6 @@ const handleJWT = (req, res, next, roles) => async (err, user, info) => {
 
   // log user in
   try {
-    console.log('ERROR', error)
     if (error || !user) throw error
     await logIn(user, { session: false })
   } catch (e) {

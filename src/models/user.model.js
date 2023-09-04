@@ -65,7 +65,7 @@ userSchema.post('save', async function saved (doc, next) {
       from: config.transporter.sender,
       to: this.email,
       subject: 'Confirm creating account',
-      html: `<div><h1>Hello ${this.name}!</h1><p>Click <a href="${config.hostname}/api/auth/confirm?key=${this.activationKey}">here</a> to activate your account.</p></div>`
+      html: `<div><h2>Hello ${this.name}!</h2><p>Click <a href="${config.hostname}/api/auth/confirm?key=${this.activationKey}">here</a> to activate your account.</p></div>`
     }
 
     transporter.sendMail(mailOptions, function (error, info) {
@@ -126,11 +126,26 @@ userSchema.statics = {
 
     const passwordOK = await user.passwordMatches(password)
 
-    if (!passwordOK) throw new APIError(`Password mismatch`, httpStatus.UNAUTHORIZED)
+    if (!passwordOK) throw new APIError(`Incorrect email or password`, httpStatus.UNAUTHORIZED)
 
     if (!user.active) throw new APIError(`User not activated`, httpStatus.UNAUTHORIZED)
 
     return user
+  },
+
+  async changePassword (payload, id) {
+    const { oldPassword, newPassword } = payload
+    if (!oldPassword) throw new APIError('Current Password must be provided')
+    if (!newPassword) throw new APIError('New Password must be provided')
+    const user = await this.findById(id).exec()
+    if (!user) throw new APIError(`No user found`, httpStatus.NOT_FOUND)
+
+    const oldPasswordOK = await user.passwordMatches(oldPassword)
+    if (!oldPasswordOK) throw new APIError(`Current Password does not match`, httpStatus.UNAUTHORIZED)
+
+    const newPasswordOK = await user.passwordMatches(newPassword)
+    if (newPasswordOK) throw new APIError(`New Password cannot be same as Current Password`, httpStatus.BAD_REQUEST)
+    await this.updateOne({_id: id}, { password: bcrypt.hashSync(newPassword) }, { runValidators: true })
   }
 }
 

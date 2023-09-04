@@ -4,17 +4,16 @@ const Joi = require('joi')
 
 // User validation rules
 module.exports = {
-  create: {
+  update: {
     body: {
-      email: Joi.string().email().required(),
-      password: Joi.string().min(6).max(128).required(),
-      name: Joi.string().max(128).required()
+      email: Joi.string().email(),
+      name: Joi.string().max(128)
     }
   },
-  login: {
+  changePassword: {
     body: {
-      email: Joi.string().email().required(),
-      password: Joi.string().min(6).max(128).required()
+      oldPassword: Joi.string().min(6).max(128).required(),
+      newPassword: Joi.string().min(6).max(128).required()
     }
   }
 }

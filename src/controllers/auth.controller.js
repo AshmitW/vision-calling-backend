@@ -25,7 +25,7 @@ exports.login = async (req, res, next) => {
     const user = await User.findAndGenerateToken(req.body)
     const payload = {sub: user.id}
     const token = jwt.sign(payload, config.secret)
-    return res.json({ message: 'OK', token: token })
+    return res.json({ message: 'success', token: token })
   } catch (error) {
     next(error)
   }
@@ -37,7 +37,7 @@ exports.confirm = async (req, res, next) => {
       { 'activationKey': req.query.key },
       { 'active': true }
     )
-    return res.json({ message: 'OK' })
+    return res.json({ message: 'success' })
   } catch (error) {
     next(error)
   }
