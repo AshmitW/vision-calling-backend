@@ -15,5 +15,10 @@ module.exports = {
     username: process.env.TRANSPORTER_USERNAME,
     password: process.env.TRANSPORTER_PASSWORD,
     sender: process.env.TRANSPORTER_SENDER
+  },
+  notification: {
+    fcm: {
+      serviceAccount: JSON.parse(process.env.FCM_CONFIG || '{}')
+    }
   }
 }

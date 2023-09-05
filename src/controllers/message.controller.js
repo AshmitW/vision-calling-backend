@@ -1,13 +1,17 @@
 'use strict'
 
 const Message = require('../models/message.model')
+const User = require('../models/user.model')
 const httpStatus = require('http-status')
 const mongoose = require('mongoose')
 const APIError = require('../utils/APIError')
+const { draftNotification } = require('../helpers/notification')
 
 exports.sendMessage = async (req, res, next) => {
   try {
     const match = {}
+    const user = await User.findById(res.req.user._id)
+    if (!user) return 'No user found'
     const firstParticipantId = mongoose.Types.ObjectId(res.req.user._id)
     const secondParticipantId = mongoose.Types.ObjectId(req.body.recieverId)
     if (firstParticipantId === secondParticipantId) throw new APIError(`Incorrect Email ID or password`, httpStatus.CONFLICT)
@@ -38,6 +42,7 @@ exports.sendMessage = async (req, res, next) => {
       res.status(httpStatus.CREATED)
       res.send(savedMsg.transform())
     }
+    req.notificationData = draftNotification('Message', user.name, res.req.user._id, user.fcmToken)
   } catch (error) {
     return next(error)
   }

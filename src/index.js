@@ -2,12 +2,14 @@
 
 const mongoose = require('./services/mongoose')
 const app = require('./services/express')
+const notification = require('./services/notification')
 const nodemailer = require('nodemailer')
 const { host, port, username, password } = require('./config').transporter
 
 // start app and connect to database
 app.start()
 mongoose.connect()
+notification()
 
 const transporter = nodemailer.createTransport({
   host: host,
