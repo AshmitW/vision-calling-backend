@@ -7,7 +7,7 @@ const mongoose = require('mongoose')
 const APIError = require('../utils/APIError')
 const { draftNotification } = require('../helpers/notification')
 
-exports.sendMessage = async (req, res, next) => {
+exports.send = async (req, res, next) => {
   try {
     const match = {}
     const user = await User.findById(res.req.user._id)
@@ -48,7 +48,7 @@ exports.sendMessage = async (req, res, next) => {
   }
 }
 
-exports.getAllMessages = async (req, res, next) => {
+exports.getAll = async (req, res, next) => {
   try {
     const match = {}
     const userId = mongoose.Types.ObjectId(res.req.user._id)

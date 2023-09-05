@@ -1,8 +1,8 @@
 const draftNotification = (type, senderName, senderId, fcmToken) => {
-  let body = `${type} from ${senderName}`
-  let title = 'Vision Calling'
+  const body = `${type} from ${senderName}`
+  const title = 'Vision Calling'
 
-  let notificationData = {
+  const notificationData = {
     message: {
       notification: {
         title: title,
