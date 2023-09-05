@@ -40,6 +40,10 @@ const userSchema = new Schema({
     type: String,
     default: 'user',
     enum: roles
+  },
+  forgotPasswordKey: {
+    type: String,
+    unique: true
   }
 }, {
   timestamps: true
@@ -64,11 +68,11 @@ userSchema.post('save', async function saved (doc, next) {
     const mailOptions = {
       from: config.transporter.sender,
       to: this.email,
-      subject: 'Confirm creating account',
-      html: `<div><h2>Hello ${this.name}!</h2><p>Click <a href="${config.hostname}/api/auth/confirm?key=${this.activationKey}">here</a> to activate your account.</p></div>`
+      subject: 'Verify Email ID',
+      html: `<div><h2>Hello ${this.name}!</h2><p>Click <a href="${config.hostname}/api/auth/verify-email-id?key=${this.activationKey}">here</a> to verify your Email ID.</p></div>`
     }
 
-    transporter.sendMail(mailOptions, function (error, info) {
+    transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.log(error)
       } else {
@@ -103,12 +107,13 @@ userSchema.statics = {
   roles,
 
   checkDuplicateEmailError (err) {
+    console.log(err)
     if (err.code === 11000) {
-      var error = new Error('Email already taken')
+      var error = new Error('Email ID already taken')
       error.errors = [{
         field: 'email',
         location: 'body',
-        messages: ['Email already taken']
+        messages: ['Email ID already taken']
       }]
       error.status = httpStatus.CONFLICT
       return error
@@ -119,14 +124,14 @@ userSchema.statics = {
 
   async findAndGenerateToken (payload) {
     const { email, password } = payload
-    if (!email) throw new APIError('Email must be provided for login')
+    if (!email) throw new APIError('Email ID must be provided for login')
 
-    const user = await this.findOne({ email }).exec()
+    const user = await this.findOne({ email })
     if (!user) throw new APIError(`No user associated with ${email}`, httpStatus.NOT_FOUND)
 
     const passwordOK = await user.passwordMatches(password)
 
-    if (!passwordOK) throw new APIError(`Incorrect email or password`, httpStatus.UNAUTHORIZED)
+    if (!passwordOK) throw new APIError(`Incorrect Email ID or password`, httpStatus.UNAUTHORIZED)
 
     if (!user.active) throw new APIError(`User not activated`, httpStatus.UNAUTHORIZED)
 
@@ -137,7 +142,7 @@ userSchema.statics = {
     const { oldPassword, newPassword } = payload
     if (!oldPassword) throw new APIError('Current Password must be provided')
     if (!newPassword) throw new APIError('New Password must be provided')
-    const user = await this.findById(id).exec()
+    const user = await this.findById(id)
     if (!user) throw new APIError(`No user found`, httpStatus.NOT_FOUND)
 
     const oldPasswordOK = await user.passwordMatches(oldPassword)
@@ -146,6 +151,49 @@ userSchema.statics = {
     const newPasswordOK = await user.passwordMatches(newPassword)
     if (newPasswordOK) throw new APIError(`New Password cannot be same as Current Password`, httpStatus.BAD_REQUEST)
     await this.updateOne({_id: id}, { password: bcrypt.hashSync(newPassword) }, { runValidators: true })
+  },
+
+  async forgotPassword (email, forgotPasswordKey) {
+    if (!email) throw new APIError('Email ID is required')
+    await this.updateOne({email},
+      { 'forgotPasswordKey': forgotPasswordKey }
+    )
+
+    const mailOptions = {
+      from: config.transporter.sender,
+      to: this.email,
+      subject: 'Reset Password',
+      html: `<div><h2>Hello ${this.name}!</h2><p>Click <a href="${config.hostname}/api/auth/verifyPasswordKey?key=${this.forgotPasswordKey}">here</a> to reset your Password.</p></div>`
+    }
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error)
+      } else {
+        console.log('Email sent: ' + info.response)
+      }
+    })
+  },
+
+  async resetPassword (payload, key) {
+    const {newPassword, confirmPassword} = payload
+    if (!newPassword) return 'New Password must be provided'
+    if (!confirmPassword) return 'Confirm Password must be provided'
+    if (newPassword !== confirmPassword) return 'New Password and Confirm Password does not match'
+    const user = await this.findOne({'forgotPasswordKey': key})
+    if (!user) return 'No user found'
+    const newPasswordOK = await user.passwordMatches(newPassword)
+    if (newPasswordOK) return 'New Password cannot be same as Current Password'
+    await this.updateOne(
+      {'_id': user._id},
+      {
+        $set: {
+          password: bcrypt.hashSync(newPassword),
+          forgotPasswordKey: null
+        }
+      }
+    )
+    return 'success'
   }
 }
 

@@ -24,20 +24,40 @@ exports.login = async (req, res, next) => {
   try {
     const user = await User.findAndGenerateToken(req.body)
     const payload = {sub: user.id}
-    const token = jwt.sign(payload, config.secret)
+    const token = jwt.sign(payload, config.secret, {expiresIn: '365d'})
     return res.json({ message: 'success', token: token })
   } catch (error) {
     next(error)
   }
 }
 
-exports.confirm = async (req, res, next) => {
+exports.verifyEmailId = async (req, res, next) => {
   try {
-    await User.findOneAndUpdate(
+    await User.updateOne(
       { 'activationKey': req.query.key },
       { 'active': true }
     )
     return res.json({ message: 'success' })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const forgotPasswordKey = uuidv1()
+    await User.forgotPassword(req.query.email, forgotPasswordKey)
+    return res.json({ message: 'success' })
+  } catch (error) {
+    next(error)
+  }
+}
+
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const status = await User.resetPassword(req.body, req.query.key)
+    console.log('STATUS: ', status)
+    res.redirect(`../../status?status=${status}`)
   } catch (error) {
     next(error)
   }
