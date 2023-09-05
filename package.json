@@ -1,17 +1,20 @@
 {
-  "name": "server",
-  "version": "1.0.0",
-  "description": "",
+  "name": "vision-calling-backend",
+  "version": "0.0.1",
+  "description": "Vision Calling backend for USW",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AshmitW/vision-calling-backend.git"
+  },
+  "author": "Ashmit <samith.shetty3@gmail.com>",
   "scripts": {
     "start": "node src/index.js",
     "dev": "./node_modules/.bin/nodemon src/index.js",
     "lint": "./node_modules/.bin/eslint **/*.js",
     "test": "cross-env NODE_ENV=test ./node_modules/.bin/mocha --exit"
   },
-  "keywords": [],
-  "author": "Kasun Vithanage",
-  "license": "MIT",
+  "private": true,
   "devDependencies": {
     "chai": "^4.1.2",
     "chai-http": "^4.3.0",
