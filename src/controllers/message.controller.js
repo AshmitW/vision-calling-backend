@@ -74,13 +74,15 @@ exports.getAll = async (req, res, next) => {
     const existingMsg = await Message.aggregate([combQuery]).allowDiskUse(true)
     for (const index of Object.keys(existingMsg[0].items)) {
       for (const internalIndex of Object.keys(existingMsg[0].items[index].participants)) {
-        const user = await User.findById(existingMsg[0].items[index].participants[internalIndex])
-        const transformedUser = {
-          _id: user._id,
-          name: user.name,
-          email: user.email
+        if (existingMsg[0].items[index].participants[internalIndex] !== res.req.user._id) {
+          const user = await User.findById(existingMsg[0].items[index].participants[internalIndex])
+          const transformedUser = {
+            _id: user._id,
+            name: user.name,
+            email: user.email
+          }
+          existingMsg[0].items[index].secondParticipant = transformedUser
         }
-        existingMsg[0].items[index].participants[internalIndex] = transformedUser
       }
     }
     return res.json({ message: 'success', data: existingMsg || {} })
