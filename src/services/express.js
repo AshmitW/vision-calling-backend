@@ -28,6 +28,11 @@ if (config.env !== 'test') app.use(morgan('combined'))
 app.use(passport.initialize())
 passport.use('jwt', passportJwt.jwt)
 
+// baseurl
+app.get('/', (req, res) => {
+  res.send({app: 'Vision Calling'})
+})
+
 // render HTML for user password reset
 app.get('/verify-password-key', (req, res) => {
   res.render('forgot-password', {

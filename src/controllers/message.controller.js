@@ -50,10 +50,39 @@ exports.send = async (req, res, next) => {
 
 exports.getAll = async (req, res, next) => {
   try {
+    const query = []
     const match = {}
     const userId = mongoose.Types.ObjectId(res.req.user._id)
     match.participants = {$in: [userId]}
-    const existingMsg = await Message.findOne(match)
+    const project = {
+      _id: 1,
+      participants: 1,
+      updateBy: 1,
+      lastMessage: 1,
+      chats: 1,
+      createdAt: 1,
+      updatedAt: 1
+    }
+
+    query.push(
+      {$sort: {updatedAt: -1}},
+      { $skip: +req.query.skip || 0 },
+      { $limit: +req.query.limit || 10 }
+    )
+    query.push({$match: match}, {$project: project})
+    const combQuery = {$facet: {items: query}}
+    const existingMsg = await Message.aggregate([combQuery]).allowDiskUse(true)
+    for (const index of Object.keys(existingMsg[0].items)) {
+      for (const internalIndex of Object.keys(existingMsg[0].items[index].participants)) {
+        const user = await User.findById(existingMsg[0].items[index].participants[internalIndex])
+        const transformedUser = {
+          _id: user._id,
+          name: user.name,
+          email: user.email
+        }
+        existingMsg[0].items[index].participants[internalIndex] = transformedUser
+      }
+    }
     return res.json({ message: 'success', data: existingMsg || {} })
   } catch (error) {
     return next(error)

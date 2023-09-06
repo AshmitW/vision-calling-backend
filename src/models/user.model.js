@@ -156,7 +156,8 @@ userSchema.statics = {
   async forgotPassword (email, forgotPasswordKey) {
     if (!email) throw new APIError('Email ID is required')
     await this.updateOne({email},
-      { 'forgotPasswordKey': forgotPasswordKey }
+      {'forgotPasswordKey': forgotPasswordKey},
+      { runValidators: true }
     )
 
     const mailOptions = {
@@ -191,7 +192,8 @@ userSchema.statics = {
           password: bcrypt.hashSync(newPassword),
           forgotPasswordKey: null
         }
-      }
+      },
+      { runValidators: true }
     )
     return 'success'
   }

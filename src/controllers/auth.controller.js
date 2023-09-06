@@ -35,7 +35,8 @@ exports.verifyEmailId = async (req, res, next) => {
   try {
     await User.updateOne(
       { 'activationKey': req.query.key },
-      { 'active': true }
+      {'active': true},
+      { runValidators: true }
     )
     return res.json({ message: 'success' })
   } catch (error) {

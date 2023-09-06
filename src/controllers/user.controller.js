@@ -44,6 +44,15 @@ exports.update = async (req, res, next) => {
 exports.getAll = async (req, res, next) => {
   try {
     const query = []
+    const match = {}
+    match.active = true
+    if (req.query.islivestreaming) match.islivestreaming = req.query.islivestreaming
+    if (req.query.keyword) {
+      match.$or = [
+        // { email: { $regex: req.query.keyword, $options: 'i' } },
+        { name: { $regex: req.query.keyword, $options: 'i' } }
+      ]
+    }
     const project = {
       _id: 1,
       name: 1,
@@ -51,9 +60,11 @@ exports.getAll = async (req, res, next) => {
       createdAt: 1
     }
     query.push(
-      { $sort: { _id: -1 } }
+      {$sort: {createdAt: 1}},
+      { $skip: +req.query.skip || 0 },
+      { $limit: +req.query.limit || 10 }
     )
-    query.push({$match: {active: true}}, {$project: project})
+    query.push({$match: match}, {$project: project})
     const combQuery = {$facet: {items: query}}
     const users = await User.aggregate([combQuery]).allowDiskUse(true)
     return res.json({ message: 'success', data: users })
