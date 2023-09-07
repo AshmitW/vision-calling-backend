@@ -13,15 +13,15 @@ exports.send = async (req, res, next) => {
     const user = await User.findById(res.req.user._id)
     if (!user) return 'No user found'
     const firstParticipantId = mongoose.Types.ObjectId(res.req.user._id)
-    const secondParticipantId = mongoose.Types.ObjectId(req.body.recieverId)
+    const secondParticipantId = mongoose.Types.ObjectId(req.body.receiverId)
     if (firstParticipantId === secondParticipantId) throw new APIError(`Incorrect Email ID or password`, httpStatus.CONFLICT)
     match.participants = {$in: [firstParticipantId && secondParticipantId]}
     const existingMsg = await Message.findOne(match)
-    if (existingMsg) {
+	  if (existingMsg) {
       existingMsg.lastMessage = req.body.text
       existingMsg.chats.push({
         senderId: res.req.user._id,
-        receiverId: req.body.recieverId,
+        receiverId: req.body.receiverId,
         text: req.body.text
       })
       existingMsg.updateBy = res.req.user._id
@@ -29,11 +29,11 @@ exports.send = async (req, res, next) => {
       return res.json({ message: 'success', data: existingMsg || {} })
     } else {
       const body = {}
-      body.participants = [res.req.user._id, req.body.recieverId]
+      body.participants = [res.req.user._id, req.body.receiverId]
       body.lastMessage = req.body.text
       body.chats = [{
         senderId: res.req.user._id,
-        receiverId: req.body.recieverId,
+        receiverId: req.body.receiverId,
         text: req.body.text
       }]
       body.updateBy = res.req.user._id
@@ -81,7 +81,7 @@ exports.getAll = async (req, res, next) => {
             name: user.name,
             email: user.email
           }
-          existingMsg[0].items[index].secondParticipant = transformedUser
+          existingMsg[0].items[index].receiver = transformedUser
         }
       }
     }

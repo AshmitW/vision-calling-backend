@@ -6,7 +6,7 @@ const Joi = require('joi')
 module.exports = {
   send: {
     body: {
-      recieverId: Joi.string().max(128).required(),
+      receiverId: Joi.string().max(128).required(),
       text: Joi.string().max(256).required()
     }
   }
