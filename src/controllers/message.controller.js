@@ -17,7 +17,7 @@ exports.send = async (req, res, next) => {
     if (firstParticipantId === secondParticipantId) throw new APIError(`Incorrect Email ID or password`, httpStatus.CONFLICT)
     match.participants = {$in: [firstParticipantId && secondParticipantId]}
     const existingMsg = await Message.findOne(match)
-	  if (existingMsg) {
+    if (existingMsg) {
       existingMsg.lastMessage = req.body.text
       existingMsg.chats.push({
         senderId: res.req.user._id,
