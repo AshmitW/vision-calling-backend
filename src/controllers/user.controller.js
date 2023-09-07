@@ -40,6 +40,7 @@ exports.getAll = async (req, res, next) => {
     const query = []
     const match = {}
     match.active = true
+    match._id = {$ne: res.req.user._id}
     if (req.query.islivestreaming) match.islivestreaming = req.query.islivestreaming
     if (req.query.keyword) {
       match.$or = [
