@@ -6,6 +6,7 @@ const APIError = require('../utils/APIError')
 const transporter = require('../services/transporter')
 const config = require('../config')
 const Schema = mongoose.Schema
+const {RtcRole, RtcTokenBuilder} = require('agora-token')
 
 const roles = [
   'user', 'admin'
@@ -44,6 +45,18 @@ const userSchema = new Schema({
   forgotPasswordKey: {
     type: String,
     unique: true
+  },
+  fcmToken: {
+    type: String,
+    default: ''
+  },
+  visionCode: {
+    type: String,
+    default: ''
+  },
+  isLiveStreaming: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
@@ -196,6 +209,30 @@ userSchema.statics = {
       { runValidators: true }
     )
     return 'success'
+  },
+
+  async generateAgoraToken (visionCode, userId, userRole) {
+    const appId = 'd19b8e8972314505b397601f15cae1b5'
+    const appCertificate = 'ba252f35ca2d4ba1a9ffe70dbe2e8c7e'
+    const channelName = visionCode
+    const uid = userId
+    const role = userRole === 'PUBLISHER' ? RtcRole.PUBLISHER : RtcRole.SUBSCRIBER
+
+    const expirationTimeInSeconds = 3600
+
+    const currentTimestamp = Math.floor(Date.now() / 1000)
+
+    const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds
+    const agoraToken = RtcTokenBuilder.buildTokenWithUid(
+      appId,
+      appCertificate,
+      channelName,
+      uid,
+      role,
+      expirationTimeInSeconds,
+      privilegeExpiredTs
+    )
+    return agoraToken
   }
 }
 

@@ -25,6 +25,13 @@ exports.login = async (req, res, next) => {
     const user = await User.findAndGenerateToken(req.body)
     const payload = {sub: user.id}
     const token = jwt.sign(payload, config.secret, {expiresIn: '365d'})
+    if (req.body.fcmToken) {
+      await User.updateOne(
+        { '_id': user.id },
+        {'fcmToken': req.body.fcmToken},
+        { runValidators: true }
+      )
+    }
     return res.json({ message: 'success', token: token })
   } catch (error) {
     next(error)
@@ -57,7 +64,6 @@ exports.forgotPassword = async (req, res, next) => {
 exports.resetPassword = async (req, res, next) => {
   try {
     const status = await User.resetPassword(req.body, req.query.key)
-    console.log('STATUS: ', status)
     res.redirect(`../../status?status=${status}`)
   } catch (error) {
     next(error)

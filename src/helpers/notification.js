@@ -1,22 +1,28 @@
-const draftNotification = (type, senderName, senderId, fcmToken) => {
-  const body = `${type} from ${senderName}`
-  const title = 'Vision Calling'
+const draftNotification = (type, senderName, senderId, fcmToken, visionCode = '', agoraToken = '') => {
+  try {
+    const body = `${type} from ${senderName}`
+    const title = 'Vision Calling'
 
-  const notificationData = {
-    message: {
-      notification: {
-        title: title,
-        body: body
+    const notificationData = {
+      message: {
+        notification: {
+          title: title,
+          body: body
+        },
+        token: fcmToken
       },
-      token: fcmToken
-    },
-    userId: senderId,
-    sent: false,
-    error: null,
-    date: new Date()
-  }
+      userId: senderId,
+      visionCode: visionCode,
+      agoraToken: agoraToken,
+      sent: false,
+      error: null,
+      date: new Date()
+    }
 
-  return notificationData
+    return notificationData
+  } catch (error) {
+    return error
+  }
 }
 
 exports.draftNotification = draftNotification
