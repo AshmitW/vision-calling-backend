@@ -67,3 +67,17 @@ exports.getAll = async (req, res, next) => {
     next(error)
   }
 }
+
+exports.getUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.query.userId)
+    const transformedUser = {
+      _id: user._id,
+      name: user.name,
+      email: user.email
+    }
+    return res.json({ message: 'success', data: transformedUser })
+  } catch (error) {
+    next(error)
+  }
+}
