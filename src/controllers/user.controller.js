@@ -41,7 +41,7 @@ exports.getAll = async (req, res, next) => {
     const match = {}
     match.active = true
     match._id = {$ne: res.req.user._id}
-    if (req.query.islivestreaming) match.islivestreaming = req.query.islivestreaming
+    if (req.query.isLiveStreaming) match.isLiveStreaming = true
     if (req.query.keyword) {
       match.$or = [
         // { email: { $regex: req.query.keyword, $options: 'i' } },
@@ -52,7 +52,8 @@ exports.getAll = async (req, res, next) => {
       _id: 1,
       name: 1,
       email: 1,
-      createdAt: 1
+      createdAt: 1,
+      isLiveStreaming: 1
     }
     query.push(
       {$sort: {createdAt: 1}},
