@@ -24,7 +24,7 @@ exports.inviteCall = async (req, res, next) => {
       {'visionCode': req.query.visionCode},
       { runValidators: true }
     )
-    const receiver = User.findById(req.query.receiverId)
+    const receiver = await User.findById(req.query.receiverId)
     receiver.visionCode = req.query.visionCode
     await receiver.save()
     const agoraToken = await User.generateAgoraToken(req.query.visionCode, res.req.user._id, 'PUBLISHER')
@@ -52,7 +52,7 @@ exports.createStream = async (req, res, next) => {
 
 exports.joinStream = async (req, res, next) => {
   try {
-    const host = User.findById(req.query.hostId)
+    const host = await User.findById(req.query.hostId)
     await User.updateOne(
       { '_id': res.req.user._id },
       {'visionCode': host.visionCode},
