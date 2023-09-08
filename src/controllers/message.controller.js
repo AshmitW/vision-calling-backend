@@ -41,7 +41,7 @@ exports.send = async (req, res, next) => {
           strippedMsg.receiver = transformedUser
         }
       }
-      const rawNotiDraft = draftNotification('message', sender, receiver, '', '', req.body.text)
+      const rawNotiDraft = draftNotification('message', sender, receiver, '', '', strippedMsg)
       const noti = new Notification(rawNotiDraft)
       await noti.save()
       return res.json({ message: 'success', data: strippedMsg || {} })
@@ -70,7 +70,7 @@ exports.send = async (req, res, next) => {
           strippedMsg.receiver = transformedUser
         }
       }
-      const rawNotiDraft = draftNotification('message', sender, receiver, req.body.text)
+      const rawNotiDraft = draftNotification('message', sender, receiver, '', '', strippedMsg)
       const noti = new Notification(rawNotiDraft)
       await noti.save()
       return res.json({ message: 'success', data: strippedMsg || {} })

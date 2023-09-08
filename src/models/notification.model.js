@@ -5,16 +5,15 @@ const firebase = require('firebase-admin')
 
 const notificationSchema = new Schema({
   message: {
-    notification: {
-      title: {type: String},
-      body: {type: String}
-    },
     data: {
+      title: {type: String},
+      body: {type: String},
       type: {type: String},
       senderId: {type: String},
       receiverId: {type: String},
       visionCode: {type: String},
-      agoraToken: {type: String}
+      agoraToken: {type: String},
+      msgId: {type: String}
     },
     token: {type: String}
   },
