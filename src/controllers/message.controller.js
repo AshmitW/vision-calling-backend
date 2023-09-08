@@ -28,11 +28,23 @@ exports.send = async (req, res, next) => {
         text: req.body.text
       })
       existingMsg.updateBy = res.req.user._id
-      await existingMsg.save()
+      const savedMsg = await existingMsg.save()
+      const strippedMsg = savedMsg.transform()
+      for (const internalIndex of Object.keys(strippedMsg.participants)) {
+        if (strippedMsg.participants[internalIndex] !== res.req.user._id) {
+          const user = await User.findById(strippedMsg.participants[internalIndex])
+          const transformedUser = {
+            _id: user._id,
+            name: user.name,
+            email: user.email
+          }
+          strippedMsg.receiver = transformedUser
+        }
+      }
       const rawNotiDraft = draftNotification('message', sender, receiver, '', '', req.body.text)
       const noti = new Notification(rawNotiDraft)
       await noti.save()
-      return res.json({ message: 'success', data: existingMsg || {} })
+      return res.json({ message: 'success', data: strippedMsg || {} })
     } else {
       const body = {}
       body.participants = [res.req.user._id, req.body.receiverId]
@@ -45,11 +57,24 @@ exports.send = async (req, res, next) => {
       body.updateBy = res.req.user._id
       const msg = new Message(body)
       const savedMsg = await msg.save()
+      res.status(httpStatus.CREATED)
+      // res.send(savedMsg.transform())
+      const strippedMsg = savedMsg.transform()
+      for (const internalIndex of Object.keys(strippedMsg.participants)) {
+        if (strippedMsg.participants[internalIndex] !== res.req.user._id) {
+          const user = await User.findById(strippedMsg.participants[internalIndex])
+          const transformedUser = {
+            _id: user._id,
+            name: user.name,
+            email: user.email
+          }
+          strippedMsg.receiver = transformedUser
+        }
+      }
       const rawNotiDraft = draftNotification('message', sender, receiver, req.body.text)
       const noti = new Notification(rawNotiDraft)
       await noti.save()
-      res.status(httpStatus.CREATED)
-      res.send(savedMsg.transform())
+      return res.json({ message: 'success', data: strippedMsg || {} })
     }
   } catch (error) {
     return next(error)
