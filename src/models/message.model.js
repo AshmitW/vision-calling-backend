@@ -58,7 +58,7 @@ messageSchema.post('save', async function saved (doc, next) {
 messageSchema.method({
   transform () {
     const transformed = {}
-    const fields = ['participants', 'lastMessage', 'status', 'chats', 'updateBy']
+    const fields = ['_id', 'participants', 'lastMessage', 'status', 'chats', 'updateBy']
 
     fields.forEach((field) => {
       transformed[field] = this[field]
