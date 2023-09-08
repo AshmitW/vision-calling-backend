@@ -38,6 +38,19 @@ exports.login = async (req, res, next) => {
   }
 }
 
+exports.logout = async (req, res, next) => {
+  try {
+    await User.updateOne(
+      { '_id': res.req.user._id },
+      {'fcmToken': '', 'visionCode': '', 'isLiveStreaming': false},
+      { runValidators: true }
+    )
+    return res.json({ message: 'success' })
+  } catch (error) {
+    next(error)
+  }
+}
+
 exports.verifyEmailId = async (req, res, next) => {
   try {
     await User.updateOne(

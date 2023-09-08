@@ -18,8 +18,8 @@ exports.me = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const {email, name} = req.body
-    if (email) await User.updateOne({_id: res.req.user._id}, {email: email}, { runValidators: true })
-    if (name) await User.updateOne({_id: res.req.user._id}, {name: name}, { runValidators: true })
+    if (email) await User.updateOne({'_id': res.req.user._id}, {'email': email}, { runValidators: true })
+    if (name) await User.updateOne({'_id': res.req.user._id}, {'name': name}, { runValidators: true })
     return res.json({ message: 'success' })
   } catch (error) {
     next(error)

@@ -163,12 +163,12 @@ userSchema.statics = {
 
     const newPasswordOK = await user.passwordMatches(newPassword)
     if (newPasswordOK) throw new APIError(`New Password cannot be same as Current Password`, httpStatus.BAD_REQUEST)
-    await this.updateOne({_id: id}, { password: bcrypt.hashSync(newPassword) }, { runValidators: true })
+    await this.updateOne({'_id': id}, { 'password': bcrypt.hashSync(newPassword) }, { runValidators: true })
   },
 
   async forgotPassword (email, forgotPasswordKey) {
     if (!email) throw new APIError('Email ID is required')
-    await this.updateOne({email},
+    await this.updateOne({'email': email},
       {'forgotPasswordKey': forgotPasswordKey},
       { runValidators: true }
     )
