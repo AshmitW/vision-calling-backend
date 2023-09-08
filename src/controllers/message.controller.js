@@ -29,21 +29,22 @@ exports.send = async (req, res, next) => {
       })
       existingMsg.updateBy = res.req.user._id
       const savedMsg = await existingMsg.save()
-      for (const internalIndex of Object.keys(savedMsg.participants)) {
-        if (savedMsg.participants[internalIndex] !== res.req.user._id) {
-          const user = await User.findById(savedMsg.participants[internalIndex])
+      const strippedMsg = savedMsg.transform()
+      for (const internalIndex of Object.keys(strippedMsg.participants)) {
+        if (strippedMsg.participants[internalIndex] !== res.req.user._id) {
+          const user = await User.findById(strippedMsg.participants[internalIndex])
           const transformedUser = {
             _id: user._id,
             name: user.name,
             email: user.email
           }
-          savedMsg.receiver = transformedUser
+          strippedMsg.receiver = transformedUser
         }
       }
       const rawNotiDraft = draftNotification('message', sender, receiver, '', '', req.body.text)
       const noti = new Notification(rawNotiDraft)
       await noti.save()
-      return res.json({ message: 'success', data: savedMsg || {} })
+      return res.json({ message: 'success', data: strippedMsg || {} })
     } else {
       const body = {}
       body.participants = [res.req.user._id, req.body.receiverId]
@@ -57,21 +58,22 @@ exports.send = async (req, res, next) => {
       const msg = new Message(body)
       const savedMsg = await msg.save()
       res.status(httpStatus.CREATED)
-      for (const internalIndex of Object.keys(savedMsg.participants)) {
-        if (savedMsg.participants[internalIndex] !== res.req.user._id) {
-          const user = await User.findById(savedMsg.participants[internalIndex])
+      const strippedMsg = savedMsg.transform()
+      for (const internalIndex of Object.keys(strippedMsg.participants)) {
+        if (strippedMsg.participants[internalIndex] !== res.req.user._id) {
+          const user = await User.findById(strippedMsg.participants[internalIndex])
           const transformedUser = {
             _id: user._id,
             name: user.name,
             email: user.email
           }
-          savedMsg.receiver = transformedUser
+          strippedMsg.receiver = transformedUser
         }
       }
       const rawNotiDraft = draftNotification('message', sender, receiver, req.body.text)
       const noti = new Notification(rawNotiDraft)
       await noti.save()
-      return res.json({ message: 'success', data: savedMsg || {} })
+      return res.json({ message: 'success', data: strippedMsg || {} })
     }
   } catch (error) {
     return next(error)
