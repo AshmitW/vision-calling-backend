@@ -1,6 +1,7 @@
 'use strict'
 
 const User = require('../models/user.model')
+const Notification = require('../models/notification.model')
 const { draftNotification } = require('../helpers/notification')
 
 exports.joinCall = async (req, res, next) => {
@@ -24,12 +25,17 @@ exports.inviteCall = async (req, res, next) => {
       {'visionCode': req.query.visionCode},
       { runValidators: true }
     )
+    await User.updateOne(
+      { '_id': req.query.receiverId },
+      {'visionCode': req.query.visionCode},
+      { runValidators: true }
+    )
     const receiver = await User.findById(req.query.receiverId)
-    receiver.visionCode = req.query.visionCode
-    await receiver.save()
     const agoraToken = await User.generateAgoraToken(req.query.visionCode, res.req.user._id, 'PUBLISHER')
     const receiverAgoraToken = await User.generateAgoraToken(req.query.visionCode, receiver._id, 'PUBLISHER')
-    req.notificationData = draftNotification('Call', res.req.user.name, res.req.user._id, receiver.fcmToken, req.query.visionCode, receiverAgoraToken)
+    const rawNotiDraft = draftNotification('call', res.req.user, receiver, req.query.visionCode, receiverAgoraToken, '')
+    const noti = new Notification(rawNotiDraft)
+    await noti.save()
     return res.json({ message: 'success', data: { agoraToken } })
   } catch (error) {
     next(error)

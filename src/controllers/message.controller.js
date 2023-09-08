@@ -6,12 +6,15 @@ const httpStatus = require('http-status')
 const mongoose = require('mongoose')
 const APIError = require('../utils/APIError')
 const { draftNotification } = require('../helpers/notification')
+const Notification = require('../models/notification.model')
 
 exports.send = async (req, res, next) => {
   try {
     const match = {}
-    const user = await User.findById(res.req.user._id)
-    if (!user) return 'No user found'
+    const sender = await User.findById(res.req.user._id)
+    if (!sender) return 'No user found'
+    const receiver = await User.findById(req.body.receiverId)
+    if (!receiver) return 'No user found'
     const firstParticipantId = mongoose.Types.ObjectId(res.req.user._id)
     const secondParticipantId = mongoose.Types.ObjectId(req.body.receiverId)
     if (firstParticipantId === secondParticipantId) throw new APIError(`Incorrect Email ID or password`, httpStatus.CONFLICT)
@@ -26,6 +29,9 @@ exports.send = async (req, res, next) => {
       })
       existingMsg.updateBy = res.req.user._id
       await existingMsg.save()
+      const rawNotiDraft = draftNotification('message', sender, receiver, '', '', req.body.text)
+      const noti = new Notification(rawNotiDraft)
+      await noti.save()
       return res.json({ message: 'success', data: existingMsg || {} })
     } else {
       const body = {}
@@ -39,10 +45,12 @@ exports.send = async (req, res, next) => {
       body.updateBy = res.req.user._id
       const msg = new Message(body)
       const savedMsg = await msg.save()
+      const rawNotiDraft = draftNotification('message', sender, receiver, req.body.text)
+      const noti = new Notification(rawNotiDraft)
+      await noti.save()
       res.status(httpStatus.CREATED)
       res.send(savedMsg.transform())
     }
-    req.notificationData = draftNotification('Message', user.name, res.req.user._id, user.fcmToken)
   } catch (error) {
     return next(error)
   }
@@ -54,6 +62,7 @@ exports.getAll = async (req, res, next) => {
     const match = {}
     const userId = mongoose.Types.ObjectId(res.req.user._id)
     match.participants = {$in: [userId]}
+    if (req.query.msgId) match._id = mongoose.Types.ObjectId(req.query.msgId)
     const project = {
       _id: 1,
       participants: 1,

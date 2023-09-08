@@ -1,7 +1,8 @@
-const draftNotification = (type, senderName, senderId, fcmToken, visionCode = '', agoraToken = '') => {
+'use strict'
+const draftNotification = (type, sender, receiver, visionCode = '', agoraToken = '', msg = '') => {
   try {
-    const body = `${type} from ${senderName}`
-    const title = 'Vision Calling'
+    const body = type === 'call' ? `Incoming call invitation` : `${msg}`
+    const title = sender.name
 
     const notificationData = {
       message: {
@@ -9,14 +10,22 @@ const draftNotification = (type, senderName, senderId, fcmToken, visionCode = ''
           title: title,
           body: body
         },
-        token: fcmToken
+        data: {
+          type: type,
+          senderId: sender._id,
+          receiverId: receiver._id,
+          visionCode: visionCode,
+          agoraToken: agoraToken
+        },
+        token: receiver.fcmToken
       },
-      userId: senderId,
+      type: type,
+      senderId: sender._id,
+      receiverId: receiver._id,
       visionCode: visionCode,
       agoraToken: agoraToken,
       sent: false,
-      error: null,
-      date: new Date()
+      error: null
     }
 
     return notificationData
