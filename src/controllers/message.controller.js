@@ -31,7 +31,7 @@ exports.send = async (req, res, next) => {
       const savedMsg = await existingMsg.save()
       const strippedMsg = savedMsg.transform()
       for (const internalIndex of Object.keys(strippedMsg.participants)) {
-        if (strippedMsg.participants[internalIndex] !== res.req.user._id) {
+        if (strippedMsg.participants[internalIndex].toString() !== res.req.user._id.toString()) {
           const user = await User.findById(strippedMsg.participants[internalIndex])
           const transformedUser = {
             _id: user._id,
@@ -60,7 +60,7 @@ exports.send = async (req, res, next) => {
       res.status(httpStatus.CREATED)
       const strippedMsg = savedMsg.transform()
       for (const internalIndex of Object.keys(strippedMsg.participants)) {
-        if (strippedMsg.participants[internalIndex] !== res.req.user._id) {
+        if (strippedMsg.participants[internalIndex].toString() !== res.req.user._id.toString()) {
           const user = await User.findById(strippedMsg.participants[internalIndex])
           const transformedUser = {
             _id: user._id,
@@ -107,7 +107,7 @@ exports.getAll = async (req, res, next) => {
     const existingMsg = await Message.aggregate([combQuery]).allowDiskUse(true)
     for (const index of Object.keys(existingMsg[0].items)) {
       for (const internalIndex of Object.keys(existingMsg[0].items[index].participants)) {
-        if (existingMsg[0].items[index].participants[internalIndex] !== res.req.user._id) {
+        if (existingMsg[0].items[index].participants[internalIndex].toString() !== res.req.user._id.toString()) {
           const user = await User.findById(existingMsg[0].items[index].participants[internalIndex])
           const transformedUser = {
             _id: user._id,
