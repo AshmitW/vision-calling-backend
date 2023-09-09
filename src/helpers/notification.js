@@ -3,7 +3,7 @@ const draftNotification = (type, sender, receiver, visionCode = '', agoraToken =
   try {
     const body = type === 'call' ? `Incoming call invitation` : `${msg.lastMessage}`
     const title = sender.name
-
+    const msgId = msg === '' ? '' : msg._id
     const notificationData = {
       message: {
         data: {
@@ -14,7 +14,7 @@ const draftNotification = (type, sender, receiver, visionCode = '', agoraToken =
           receiverId: receiver._id,
           visionCode: visionCode,
           agoraToken: agoraToken,
-          msgId: msg._id
+          msgId: msgId
         },
         token: receiver.fcmToken
       },
