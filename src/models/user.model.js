@@ -179,7 +179,7 @@ userSchema.statics = {
       from: config.transporter.sender,
       to: email,
       subject: 'Reset Password',
-      html: `<div><h2>Hello ${user.name}!</h2><p>Click <a href="${config.hostname}/api/auth/verifyPasswordKey?key=${forgotPasswordKey}">here</a> to reset your Password.</p></div>`
+      html: `<div><h2>Hello ${user.name}!</h2><p>Click <a href="${config.hostname}/verify-password-key?key=${forgotPasswordKey}">here</a> to reset your Password.</p></div>`
     }
 
     transporter.sendMail(mailOptions, (error, info) => {
