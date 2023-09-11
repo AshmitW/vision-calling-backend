@@ -168,6 +168,8 @@ userSchema.statics = {
 
   async forgotPassword (email, forgotPasswordKey) {
     if (!email) throw new APIError('Email ID is required')
+    const user = await this.findOne({ email })
+    if (!user) throw new APIError(`No user associated with ${email}`, httpStatus.NOT_FOUND)
     await this.updateOne({'email': email},
       {'forgotPasswordKey': forgotPasswordKey},
       { runValidators: true }
@@ -175,14 +177,15 @@ userSchema.statics = {
 
     const mailOptions = {
       from: config.transporter.sender,
-      to: this.email,
+      to: email,
       subject: 'Reset Password',
       html: `<div><h2>Hello ${this.name}!</h2><p>Click <a href="${config.hostname}/api/auth/verifyPasswordKey?key=${this.forgotPasswordKey}">here</a> to reset your Password.</p></div>`
     }
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.log(error)
+        console.log('Cannot send mail', error)
+        throw new APIError(`Cannot send email to ${email}`, httpStatus.BAD_REQUEST)
       } else {
         console.log('Email sent: ' + info.response)
       }
