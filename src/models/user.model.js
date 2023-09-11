@@ -146,7 +146,7 @@ userSchema.statics = {
 
     if (!passwordOK) throw new APIError(`Incorrect Email ID or password`, httpStatus.UNAUTHORIZED)
 
-    if (!user.active) throw new APIError(`User not activated`, httpStatus.UNAUTHORIZED)
+    if (!user.active) throw new APIError(`User not activated, check check your email to verify`, httpStatus.UNAUTHORIZED)
 
     return user
   },
