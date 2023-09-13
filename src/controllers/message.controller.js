@@ -18,7 +18,7 @@ exports.send = async (req, res, next) => {
     const firstParticipantId = mongoose.Types.ObjectId(res.req.user._id)
     const secondParticipantId = mongoose.Types.ObjectId(req.body.receiverId)
     if (firstParticipantId === secondParticipantId) throw new APIError(`Incorrect Email ID or password`, httpStatus.CONFLICT)
-    match.participants = {$in: [firstParticipantId && secondParticipantId]}
+    match.participants = {$all: [firstParticipantId, secondParticipantId]}
     const existingMsg = await Message.findOne(match)
     if (existingMsg) {
       existingMsg.lastMessage = req.body.text
