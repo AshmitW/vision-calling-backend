@@ -2,7 +2,6 @@
 
 const config = require('../config')
 const express = require('express')
-const morgan = require('morgan')
 const cors = require('cors')
 const helmet = require('helmet')
 const bodyParser = require('body-parser')
@@ -22,8 +21,6 @@ app.use(helmet())
 app.set('view engine', 'ejs')
 app.set('views', path.resolve('src/views'))
 
-if (config.env !== 'test') app.use(morgan('combined'))
-
 // passport
 app.use(passport.initialize())
 passport.use('jwt', passportJwt.jwt)
@@ -33,13 +30,13 @@ app.get('/', (req, res) => {
   res.send({app: 'Vision Calling'})
 })
 
-// render HTML for user password reset
+// render EJS file for user password reset
 app.get('/verify-password-key', (req, res) => {
   res.render('forgot-password', {
     redirectUrl: '/api/auth/reset-password?key=' + req.query.key
   })
 })
-// render HTML for showing status of any operation
+// render EJS file for showing status of any operation
 app.get('/status', (req, res) => {
   res.render('status', {
     status: req.query.status

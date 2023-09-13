@@ -44,6 +44,7 @@ exports.getAll = async (req, res, next) => {
     if (req.query.isLiveStreaming) match.isLiveStreaming = true
     if (req.query.keyword) {
       match.$or = [
+        // Commented for safety, to prevent accidental guesses of email
         // { email: { $regex: req.query.keyword, $options: 'i' } },
         { name: { $regex: req.query.keyword, $options: 'i' } }
       ]

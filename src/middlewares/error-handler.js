@@ -6,7 +6,7 @@ const httpStatus = require('http-status')
 exports.handleNotFound = (req, res, next) => {
   res.status(httpStatus.NOT_FOUND)
   res.json({
-    'message': 'Requested resource not found'
+    'message': 'Not Found'
   })
   res.end()
 }
